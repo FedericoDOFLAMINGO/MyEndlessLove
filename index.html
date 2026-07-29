@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Para Angy 💌</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#FFFDF9;
+    --paper-shade:#FBF0EC;
+    --rose:#D85D72;
+    --rose-deep:#B03A52;
+    --leaf:#7FA06E;
+    --leaf-deep:#5C7E4E;
+    --gold:#E0A94F;
+    --ink:#4A3238;
+  }
+  *{box-sizing:border-box;}
+  html,body{
+    margin:0; min-height:100vh;
+    background:
+      radial-gradient(ellipse at 15% 8%, #7A3B4A 0%, transparent 55%),
+      radial-gradient(ellipse at 88% 90%, #5C2A3D 0%, transparent 50%),
+      linear-gradient(160deg, #4A2338, #6B2E3F 55%, #7A3B4A);
+    font-family:'Quicksand', sans-serif;
+    color:var(--ink);
+    overflow-x:hidden;
+  }
+
+  .ambient{ position:fixed; inset:0; pointer-events:none; z-index:0; overflow:hidden; }
+  .ambient span{
+    position:absolute; top:-30px; font-size:14px; color:var(--rose); opacity:.3;
+    animation:fall linear infinite;
+  }
+  @keyframes fall{ to{ transform:translateY(110vh) rotate(300deg); } }
+
+  .scene{
+    position:relative; z-index:1; min-height:100vh;
+    display:flex; align-items:center; justify-content:center; padding:24px;
+  }
+
+  .btn{
+    font-family:'Quicksand',sans-serif; font-weight:600; font-size:15px; letter-spacing:.03em;
+    color:#fff; background:linear-gradient(135deg,var(--rose),var(--rose-deep));
+    border:none; padding:13px 30px; border-radius:999px; cursor:pointer;
+    box-shadow:0 10px 22px rgba(176,58,82,.28);
+    transition:transform .2s ease, box-shadow .2s ease;
+  }
+  .btn:hover{ transform:translateY(-2px); box-shadow:0 14px 26px rgba(176,58,82,.34); }
+
+  @keyframes fadeIn{ from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);} }
+
+  /* ===== ENVELOPE ===== */
+  #envelope-screen{ text-align:center; animation:fadeIn 1s ease both; }
+  .envelope{ width:min(78vw,230px); margin:0 auto 26px; cursor:pointer; }
+  .envelope svg{ width:100%; height:auto; filter:drop-shadow(0 14px 24px rgba(176,58,82,.18)); }
+  .envelope-title{
+    font-family:'Cormorant Garamond', serif; font-style:italic; font-weight:600;
+    font-size:clamp(28px,6vw,42px); color:#FBE7E9; margin:0 0 6px;
+  }
+  .envelope-sub{ font-size:15px; opacity:.85; margin:0 0 26px; color:#FBE7E9; }
+
+  /* ===== PINWHEEL SCREEN ===== */
+  #pinwheel-screen{ display:none; text-align:center; width:100%; max-width:520px; }
+  #pinwheel-screen.visible{ display:block; animation:fadeIn .8s ease both; }
+
+  .heading{
+    font-family:'Cormorant Garamond', serif; font-style:italic; font-weight:600;
+    font-size:clamp(22px,5vw,30px); color:#FBE7E9; margin:0 0 4px;
+  }
+  .sub{ font-size:13.5px; opacity:.8; margin:0 0 34px; color:#FBE7E9; }
+
+  .pinwheel-stage{
+    position:relative;
+    width:min(80vw,320px); height:min(80vw,320px);
+    margin:0 auto;
+    perspective:1100px;
+  }
+
+  .center-pin{
+    position:absolute; left:50%; top:50%; width:44px; height:44px;
+    transform:translate(-50%,-50%);
+    border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, #F3C878, var(--gold) 75%);
+    box-shadow:0 0 0 6px rgba(224,169,79,.18), 0 6px 16px rgba(176,58,82,.2);
+    z-index:5;
+  }
+
+  .pinwheel{ position:absolute; inset:0; transition:transform 1s cubic-bezier(.34,1.56,.64,1); }
+  .pinwheel.bloom-out{ transform:scale(1.15) rotate(10deg); }
+
+  .blade-wrap{ position:absolute; left:50%; top:50%; width:0; height:0; }
+  .blade-counter{
+    position:absolute; left:-68px; top:-150px; width:136px; height:150px;
+    transform-style:preserve-3d;
+  }
+  .blade-flip{
+    width:100%; height:100%; position:relative;
+    transform-style:preserve-3d;
+    transition:transform .85s cubic-bezier(.34,1.56,.64,1);
+    cursor:pointer;
+  }
+  .blade-flip.opened{ transform:rotateY(180deg); }
+
+  .blade-face{
+    position:absolute; inset:0;
+    backface-visibility:hidden;
+    clip-path:polygon(50% 0%, 100% 56%, 50% 100%, 0% 56%);
+    display:flex; align-items:center; justify-content:center;
+    padding:16px 14px 26px;
+    text-align:center;
+  }
+  .blade-front{
+    background:linear-gradient(180deg,#FFFFFF,#FDF3F1);
+    border:1px solid #F0DADD;
+    box-shadow:0 6px 14px rgba(176,58,82,.12);
+  }
+  .blade-front .h1{ position:absolute; top:26%; left:28%; font-size:11px; color:var(--rose); opacity:.55; }
+  .blade-front .h2{ position:absolute; top:36%; right:24%; font-size:9px; color:var(--leaf); opacity:.5; }
+  .blade-front .h3{ position:absolute; bottom:30%; left:38%; font-size:10px; color:var(--rose); opacity:.4; }
+  .blade-front .center-mark{ font-size:20px; color:var(--rose); opacity:.75; }
+  .blade-front.opened-hint .center-mark{ color:var(--gold); }
+
+  .blade-back{
+    background:linear-gradient(180deg,#FDF3F1,#FBE7E9);
+    transform:rotateY(180deg);
+    font-family:'Cormorant Garamond', serif; font-style:italic; font-weight:600;
+    font-size:14px; line-height:1.4; color:var(--rose-deep);
+    border:1px solid #F0C9CE;
+  }
+
+  .progress{ margin-top:36px; font-size:12.5px; letter-spacing:.06em; opacity:.75; color:#FBE7E9; }
+
+  /* ===== OVERLAY DE ASPA AGRANDADA ===== */
+  #blade-overlay{
+    position:fixed; inset:0; z-index:100;
+    background:rgba(42,18,29,.62);
+    backdrop-filter:blur(4px);
+    display:flex; align-items:center; justify-content:center;
+    padding:24px;
+    opacity:0; pointer-events:none;
+    transition:opacity .35s ease;
+  }
+  #blade-overlay.show{ opacity:1; pointer-events:auto; }
+
+  .overlay-card{
+    position:relative;
+    width:min(80vw,320px);
+    background:linear-gradient(180deg,#FFFFFF,#FDF3F1 45%,#FBE7E9);
+    border:1px solid #F0C9CE;
+    border-radius:22px;
+    box-shadow:0 26px 55px rgba(0,0,0,.35);
+    padding:40px 26px 34px;
+    text-align:center;
+    transform:scale(.55) translateY(10px);
+    transition:transform .45s cubic-bezier(.34,1.56,.64,1);
+  }
+  #blade-overlay.show .overlay-card{ transform:scale(1) translateY(0); }
+
+  .overlay-close{
+    position:absolute; top:10px; right:14px;
+    width:30px; height:30px; border-radius:50%;
+    background:#fff; border:1px solid #F0DADD;
+    font-size:15px; color:var(--rose-deep); opacity:.7;
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer;
+  }
+
+  .overlay-icon{ font-size:26px; color:var(--gold); margin-bottom:16px; }
+  .overlay-msg{
+    font-family:'Cormorant Garamond', serif; font-style:italic; font-weight:600;
+    font-size:clamp(18px,5vw,21px); line-height:1.55; color:var(--rose-deep);
+  }
+  .progress .dots{ display:flex; gap:7px; justify-content:center; margin-top:10px; }
+  .progress .dot{ width:7px; height:7px; border-radius:50%; background:#EAD2D6; transition:background .3s ease, transform .3s ease; }
+  .progress .dot.on{ background:var(--rose); transform:scale(1.25); }
+
+  /* ===== DEDICATION ===== */
+  #dedication-screen{ display:none; text-align:center; max-width:420px; width:100%; }
+  #dedication-screen.visible{ display:block; animation:fadeIn 1.1s ease both; }
+  .frame{
+    width:min(62vw,220px); margin:0 auto 22px; padding:12px 12px 26px;
+    background:#fff; border-radius:6px; box-shadow:0 18px 40px rgba(176,58,82,.25);
+    transform:rotate(-3deg);
+  }
+  .frame img{ display:block; width:100%; aspect-ratio:4/5; object-fit:cover; border-radius:2px; }
+  .frame .caption{ font-family:'Cormorant Garamond', serif; font-style:italic; font-size:14px; color:var(--rose-deep); margin-top:10px; opacity:.8; }
+  .dedication-title{
+    font-family:'Cormorant Garamond', serif; font-style:italic; font-weight:600;
+    font-size:clamp(24px,6vw,32px); color:#FBE7E9; margin:6px 0 16px;
+  }
+  .dedication-text{ font-size:15.5px; line-height:1.75; opacity:.92; margin:0 0 22px; color:#FBE7E9; }
+  .signature{ font-family:'Cormorant Garamond', serif; font-style:italic; font-weight:600; font-size:19px; color:#F3C2CC; }
+
+  #mute-btn{
+    position:fixed; bottom:18px; right:18px; width:44px; height:44px; border-radius:50%;
+    background:#fff; border:1px solid #F0DADD; box-shadow:0 8px 18px rgba(176,58,82,.18);
+    display:none; align-items:center; justify-content:center; font-size:18px; cursor:pointer; z-index:60;
+  }
+  #mute-btn.show{ display:flex; }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:.01ms !important; transition-duration:.01ms !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="ambient" id="ambient"></div>
+<audio id="bg-music" src="amor.mp3" loop preload="auto"></audio>
+<button id="mute-btn" aria-label="Silenciar música">🔊</button>
+
+<div class="scene">
+
+  <!-- ===== SOBRE ===== -->
+  <div id="envelope-screen">
+    <div class="envelope" id="envelope-btn" role="button" aria-label="Abrir carta">
+      <svg viewBox="0 0 200 140" xmlns="http://www.w3.org/2000/svg">
+        <rect x="4" y="14" width="192" height="122" rx="10" fill="#FBE7E9" stroke="#D85D72" stroke-width="2"/>
+        <path d="M4 20 L100 90 L196 20" fill="none" stroke="#D85D72" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="100" cy="60" r="14" fill="#B03A52"/>
+        <path d="M100 53 c-3 -5 -12 -5 -12 2 c0 6 12 12 12 12 s12 -6 12 -12 c0 -7 -9 -7 -12 -2z" fill="#F3AFCB"/>
+      </svg>
+    </div>
+    <p class="envelope-title">Para ti, Angy</p>
+    <p class="envelope-sub">Mi Princesita Linda</p>
+    <button class="btn" id="open-btn">Abrir carta</button>
+  </div>
+
+  <!-- ===== PINWHEEL ===== -->
+  <div id="pinwheel-screen">
+    <p class="heading">Gira y abre cada aspa</p>
+    <p class="sub">Por siempre Te Quiero Mi Niña Hermosa</p>
+
+    <div class="pinwheel-stage">
+      <div class="center-pin"></div>
+      <div class="pinwheel" id="pinwheel"></div>
+    </div>
+
+    <div class="progress">
+      <span id="progress-text">0 de 4 aspas</span>
+      <div class="dots" id="dots"></div>
+    </div>
+  </div>
+
+  <!-- ===== OVERLAY ASPA AGRANDADA ===== -->
+  <div id="blade-overlay">
+    <div class="overlay-card">
+      <button class="overlay-close" id="overlay-close" aria-label="Cerrar">✕</button>
+      <div class="overlay-icon">♥</div>
+      <p class="overlay-msg" id="overlay-msg"></p>
+    </div>
+  </div>
+
+  <!-- ===== DEDICATORIA ===== -->
+  <div id="dedication-screen">
+    <div class="frame">
+      <img src="amor.jpg" alt="Foto de nosotros">
+      <p class="caption">nosotros</p>
+    </div>
+    <p class="dedication-title">Para mi Angy</p>
+    <p class="dedication-text">
+      Cada aspa de esta carta es una razón pequeña dentro de una razón enorme: Tú.
+      Gracias por llenar mis días de calma, de risa y de ganas de seguir construyendo
+      cosas contigo. Eres mi lugar favorito, mi persona favorita, mi hoy y todos mis mañanas.
+      Te amo.
+    </p>
+    <p class="signature">— Fer</p>
+  </div>
+<b></b>
+</div>
+
+<script>
+(function(){
+  const messages = [
+    "Tu sonrisa es mi lugar favorito en el mundo.",
+    "Amo todo de ti y cada parte que te hace ser tú.",
+    "Gracias por ser mi calma y mi aventura al mismo tiempo.",
+    "Quiero seguir eligiéndote, hoy y siempre."
+  ];
+
+  const pinwheelEl = document.getElementById('pinwheel');
+  const dotsEl = document.getElementById('dots');
+  const progressText = document.getElementById('progress-text');
+  const opened = new Set();
+  const n = messages.length;
+
+  const ambient = document.getElementById('ambient');
+  for(let i=0;i<12;i++){
+    const s = document.createElement('span');
+    s.textContent = '♥';
+    s.style.left = (Math.random()*100)+'vw';
+    s.style.animationDuration = (9 + Math.random()*10)+'s';
+    s.style.animationDelay = (Math.random()*10)+'s';
+    s.style.fontSize = (12 + Math.random()*10)+'px';
+    ambient.appendChild(s);
+  }
+
+  messages.forEach((msg, i) => {
+    const angle = (360/n) * i;
+
+    const wrap = document.createElement('div');
+    wrap.className = 'blade-wrap';
+    wrap.style.transform = `rotate(${angle}deg)`;
+
+    const counter = document.createElement('div');
+    counter.className = 'blade-counter';
+    counter.style.transform = `rotate(${-angle}deg)`;
+
+    const flip = document.createElement('div');
+    flip.className = 'blade-flip';
+    flip.dataset.index = i;
+
+    const front = document.createElement('div');
+    front.className = 'blade-face blade-front';
+    front.innerHTML = `
+      <span class="h1">♥</span>
+      <span class="h2">♥</span>
+      <span class="h3">♥</span>
+      <span class="center-mark">♥</span>
+    `;
+
+    flip.appendChild(front);
+    flip.addEventListener('click', () => onBladeClick(i, front));
+
+    counter.appendChild(flip);
+    wrap.appendChild(counter);
+    pinwheelEl.appendChild(wrap);
+
+    const dot = document.createElement('span');
+    dot.className = 'dot';
+    dot.id = 'dot-'+i;
+    dotsEl.appendChild(dot);
+  });
+
+  const overlay = document.getElementById('blade-overlay');
+  const overlayMsg = document.getElementById('overlay-msg');
+  const overlayClose = document.getElementById('overlay-close');
+  let allJustCompleted = false;
+
+  function onBladeClick(i, frontEl){
+    overlayMsg.textContent = messages[i];
+    overlay.classList.add('show');
+
+    if(!opened.has(i)){
+      opened.add(i);
+      frontEl.classList.add('opened-hint');
+      document.getElementById('dot-'+i).classList.add('on');
+      progressText.textContent = opened.size + ' de ' + n + ' aspas';
+
+      if(opened.size === n){
+        allJustCompleted = true;
+      }
+    }
+  }
+
+  function closeOverlay(){
+    overlay.classList.remove('show');
+    if(allJustCompleted){
+      allJustCompleted = false;
+      setTimeout(bloomAndReveal, 400);
+    }
+  }
+
+  overlayClose.addEventListener('click', closeOverlay);
+  overlay.addEventListener('click', (e) => {
+    if(e.target === overlay) closeOverlay();
+  });
+
+  function bloomAndReveal(){
+    document.getElementById('pinwheel').classList.add('bloom-out');
+    setTimeout(() => {
+      document.getElementById('pinwheel-screen').classList.remove('visible');
+      document.getElementById('dedication-screen').classList.add('visible');
+    }, 1000);
+  }
+
+  const music = document.getElementById('bg-music');
+  const muteBtn = document.getElementById('mute-btn');
+  let muted = false;
+
+  function openLetter(){
+    document.getElementById('envelope-screen').style.display = 'none';
+    document.getElementById('pinwheel-screen').classList.add('visible');
+    music.volume = 0.6;
+    music.play().catch(()=>{});
+    muteBtn.classList.add('show');
+  }
+
+  document.getElementById('open-btn').addEventListener('click', openLetter);
+  document.getElementById('envelope-btn').addEventListener('click', openLetter);
+
+  muteBtn.addEventListener('click', () => {
+    muted = !muted;
+    music.muted = muted;
+    muteBtn.textContent = muted ? '🔇' : '🔊';
+  });
+})();
+</script>
+
+</body>
+</html>
